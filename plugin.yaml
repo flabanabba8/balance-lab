@@ -1,0 +1,9 @@
+name: balance-lab
+version: "0.1.0"
+description: "Compare balance settings with repeatable paired duel simulations."
+author: "Balance Lab contributors"
+license: GPL-3.0-or-later
+requires_hermes: ">=0.22.0"
+provides_tools:
+  - balance_compare_duel
+  - balance_packet_storm
