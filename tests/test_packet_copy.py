@@ -38,9 +38,11 @@ class CopyTests(unittest.TestCase):
             dest.mkdir()
             (project/'Cargo.toml').write_text('[workspace]\nmembers=["crates/sim"]\n')
             (project/'Cargo.lock').write_text('fixture')
-            (sim/'.codex').mkdir()
-            with self.assertRaisesRegex(ValueError, 'Private configuration'):
-                core.copied_source(project, dest)
+            for name in ('.CoDeX', '.GiT'):
+                folder=sim/name;folder.mkdir()
+                with self.assertRaisesRegex(ValueError, 'Private configuration'):
+                    core.copied_source(project, dest)
+                folder.rmdir()
 
     def test_timeout_stops_owned_process_group(self):
         process = Mock()

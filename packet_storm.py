@@ -17,10 +17,10 @@ PRIVATE = {'.ssh', '.gnupg', '.aws', '.azure', '.codex', '.docker', '.kube', '.p
 
 def chosen(value, directory=False):
     p = Path(value).expanduser()
-    if not p.is_absolute() or p.is_symlink() or any(x in PRIVATE for x in p.parts):
+    if not p.is_absolute() or p.is_symlink() or any(x.casefold() in PRIVATE for x in p.parts):
         raise ValueError('Choose an absolute non-symlink path outside private configuration')
     p = p.resolve(strict=True)
-    if any(x in PRIVATE for x in p.parts) or (not p.is_dir() if directory else not p.is_file()):
+    if any(x.casefold() in PRIVATE for x in p.parts) or (not p.is_dir() if directory else not p.is_file()):
         raise ValueError('Selected source is not accessible')
     return p
 
@@ -42,7 +42,7 @@ def copied_source(project, destination):
     files = []
     for root, dirs, names in os.walk(sim, followlinks=False):
         for name in dirs + names:
-            if name in PRIVATE or name == '.git': raise ValueError('Private configuration and Git entries are unsupported')
+            if name.casefold() in PRIVATE or name.casefold() == '.git': raise ValueError('Private configuration and Git entries are unsupported')
             path = Path(root) / name
             if path.is_symlink(): raise ValueError('Symlinks in the simulation crate are unsupported')
         for name in names:
