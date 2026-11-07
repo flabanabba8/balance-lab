@@ -10,6 +10,12 @@ core = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(core)
 
 class CopyTests(unittest.TestCase):
+    def test_time_limit_is_validated_before_anything_runs(self):
+        for bad in (5, 901, 12.5, '60', True):
+            with self.assertRaisesRegex(ValueError, 'time_limit_seconds'):
+                core.packet_storm('/nonexistent', '/nonexistent', '/nonexistent', 1, 1, 10, time_limit_seconds=bad)
+
+
     def test_copy_isolated_and_source_unchanged(self):
         with tempfile.TemporaryDirectory(dir='/tmp') as temp:
             root = Path(temp)

@@ -108,9 +108,10 @@ def run_owned(command, cwd, env, timeout, capture=False):
         if process.stdout is not None: process.stdout.close()
 
 
-def packet_storm(project_path, baseline_tuning, candidate_tuning, seed, trials, max_seconds):
+def packet_storm(project_path, baseline_tuning, candidate_tuning, seed, trials, max_seconds, time_limit_seconds=55):
     if type(seed) is not int or not 1 <= seed <= 2**63-100 or type(trials) is not int or not 1 <= trials <= 10 or type(max_seconds) is not int or not 1 <= max_seconds <= 120:
         raise ValueError('Use a positive seed, 1–10 trials and a 1–120 second simulation cap')
+    if type(time_limit_seconds) is not int or not 10 <= time_limit_seconds <= 900: raise ValueError('time_limit_seconds must be 10 to 900')
     project = chosen(project_path, directory=True)
     baseline, candidate = read_config(baseline_tuning), read_config(candidate_tuning)
     cargo = shutil.which('cargo') or str(Path.home() / '.cargo' / 'bin' / 'cargo')
@@ -126,7 +127,7 @@ def packet_storm(project_path, baseline_tuning, candidate_tuning, seed, trials, 
         env = {k: os.environ[k] for k in ('HOME','CARGO_HOME','RUSTUP_HOME','RUSTUP_TOOLCHAIN','LANG') if k in os.environ}
         env['PATH'] = str(Path(cargo).parent) + os.pathsep + os.defpath
         env['CARGO_TARGET_DIR'] = str(sandbox/'target')
-        deadline = time.monotonic() + 55
+        deadline = time.monotonic() + time_limit_seconds
         def remaining():
             value = deadline - time.monotonic()
             if value <= 0: raise RuntimeError('Simulation exceeded its time limit')
